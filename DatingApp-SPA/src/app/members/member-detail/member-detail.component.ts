@@ -22,7 +22,7 @@ export class MemberDetailComponent implements OnInit {
     this.loadUser();
   }
 
-  //members/4
+  // members/4
   loadUser() {
     // "+" on next line will convert the string param to a number
     this.userService.getUser(+this.route.snapshot.params['id']).subscribe(
