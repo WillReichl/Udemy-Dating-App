@@ -44,6 +44,13 @@ namespace DatingApp.API
                     opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
             services.AddCors();
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            services.Configure<CloudinarySettings>(Configuration.GetSection("DatingApp")); // Bind user secrets
+
+            // Test runtime secret retrieval
+            var datingAppConfig = Configuration.GetSection("DatingApp").Get<CloudinarySettings>();
+            Console.WriteLine($"Secret: {datingAppConfig.ApiSecret}");
+
             services.AddAutoMapper();
             services.AddTransient<Seed>();
             services.AddScoped<IAuthRepository, AuthRepository>();
@@ -67,7 +74,7 @@ namespace DatingApp.API
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();                
             }
             else
             {
