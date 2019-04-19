@@ -30,6 +30,7 @@ namespace DatingApp.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers([FromQuery] UserParams userParams)
         {
+            Console.WriteLine(userParams.PageNumber + " " + userParams.PageSize);
             var users = await _datingRepo.GetUsers(userParams);
 
             var usersToReturn = _mapper.Map<IEnumerable<UserForListDto>>(users);
