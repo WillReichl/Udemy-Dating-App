@@ -24,7 +24,6 @@ export class UserService {
     if (page != null && itemsPerPage != null) {
       params = params.append('pageNumber', page);
       params = params.append('pageSize', itemsPerPage);
-      console.log('Appended params');
     }
 
     return this.http
