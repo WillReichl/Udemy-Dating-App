@@ -27,6 +27,12 @@ namespace DatingApp.API.Data
             _dbContext.Remove(entity);
         }
 
+        public async Task<Like> GetLike(int userId, int recipientId)
+        {
+            var like = await _dbContext.Likes.FirstOrDefaultAsync(l => l.LikerId == userId && l.LikeeId == recipientId);
+            return like;
+        }
+
         public async Task<Photo> GetMainPhotoForUser(int userId)
         {
             var photo = await _dbContext.Photos.FirstOrDefaultAsync(p => p.UserId == userId && p.IsMain);
@@ -76,7 +82,7 @@ namespace DatingApp.API.Data
                         break;
                 }
             }
-            
+
             return await PagedList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
 
