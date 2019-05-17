@@ -88,6 +88,10 @@ namespace DatingApp.API.Controllers
 
             _datingRepo.Add(message);
 
+            var sender = await _datingRepo.GetUser(messageForCreationDto.SenderId);
+
+            message.Sender = sender;
+
             var messageToReturn = _mapper.Map<MessageForCreationDto>(message);
 
             if (await _datingRepo.SaveAll())
