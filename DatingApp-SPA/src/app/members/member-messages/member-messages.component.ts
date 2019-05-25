@@ -3,6 +3,7 @@ import { Message } from 'src/app/_models/message';
 import { UserService } from 'src/app/_services/user.service';
 import { AuthService } from 'src/app/_services/auth.service';
 import { AlertifyService } from 'src/app/_services/alertify.service';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-member-messages',
@@ -25,8 +26,18 @@ export class MemberMessagesComponent implements OnInit {
   }
 
   loadMessages() {
+    const userId = +this.authService.decodedToken.nameid;
     this.userService
       .getMessageThread(this.authService.decodedToken.nameid, this.recipientId)
+      .pipe(
+        tap(messages => {
+          messages.forEach(message => {
+            if (!message.isRead && message.recipientId === userId) {
+              this.userService.markAsRead(userId, message.id);
+            }
+          });
+        })
+      )
       .subscribe(
         messages => {
           this.messages = messages;
@@ -41,11 +52,14 @@ export class MemberMessagesComponent implements OnInit {
     this.newMessage.recipientId = this.recipientId;
     this.userService
       .sendMessage(this.authService.decodedToken.nameid, this.newMessage)
-      .subscribe((message: Message) => {
-        this.messages.unshift(message);
-        this.newMessage.content = '';
-      }, error => {
-        this.alertify.error(error);
-      });
+      .subscribe(
+        (message: Message) => {
+          this.messages.unshift(message);
+          this.newMessage.content = '';
+        },
+        error => {
+          this.alertify.error(error);
+        }
+      );
   }
 }
