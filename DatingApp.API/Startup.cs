@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using DatingApp.API.Helpers;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace DatingApp.API
 {
@@ -36,7 +37,8 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(x =>
-                x.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+                x.UseMySql(Configuration.GetConnectionString("DefaultConnection"))
+                .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.IncludeIgnoredWarning)));
             Console.WriteLine($"Using connection string: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
