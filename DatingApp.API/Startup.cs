@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using DatingApp.API.Helpers;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace DatingApp.API
 {
@@ -36,7 +37,48 @@ namespace DatingApp.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(x =>
+                x.UseMySql(Configuration.GetConnectionString("DefaultConnection"))
+                .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.IncludeIgnoredWarning)));
+            Console.WriteLine($"Using connection string: {Configuration.GetConnectionString("DefaultConnection")}");
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(opt =>
+                {
+                    opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
+            services.AddCors();
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
+            services.Configure<CloudinarySettings>(Configuration.GetSection("DatingApp")); // Bind user secrets
+
+            // Test runtime secret retrieval
+            var datingAppConfig = Configuration.GetSection("DatingApp").Get<CloudinarySettings>();
+            Console.WriteLine($"Secret: {datingAppConfig.ApiSecret}");
+
+            services.AddAutoMapper();
+            services.AddTransient<Seed>();
+            services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IDatingRepository, DatingRepository>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(Encoding.ASCII
+                                .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    }
+                );
+            services.AddScoped<LogUserActivity>();
+        }
+
+        // ConfigureDevelopmentServices will be used by convention when running in Development mode
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(x =>
                 x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            Console.WriteLine($"Using connection string: {Configuration.GetConnectionString("DefaultConnection")}");
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(opt =>
@@ -75,7 +117,7 @@ namespace DatingApp.API
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();                
+                app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -100,7 +142,15 @@ namespace DatingApp.API
             // seeder.SeedUsers();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+            app.UseMvc(routes =>
+            {
+                routes.MapSpaFallbackRoute(
+                    name: "spa-fallback",
+                    defaults: new { controller = "Fallback", Action = "Index" }
+                );
+            });
         }
     }
 }

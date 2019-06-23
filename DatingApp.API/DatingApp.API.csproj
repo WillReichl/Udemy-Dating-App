@@ -4,13 +4,16 @@
     <UserSecretsId>5326c7fb-0281-4407-86ba-f25d4652964c</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CloudinaryDotNet" Version="1.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="4.0.1" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.3.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.App"/>
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4"/>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="4.0.1"/>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.1"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.4"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.4"/>
   </ItemGroup>
 </Project>
